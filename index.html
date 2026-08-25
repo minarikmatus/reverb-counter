@@ -40,15 +40,11 @@
 		.section-label { margin: 0 0 24px; font: 500 12px 'DM Mono', monospace; color: var(--teal); letter-spacing: 1px; text-transform: uppercase; }
 		.tempo-row { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px; }
 		label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
-		.tempo-control { display: flex; align-items: center; gap: 10px; }
-		.number-wrap { position: relative; flex: 1; }
-		input[type=number] { width: 100%; border: 0; border-bottom: 2px solid var(--ink); border-radius: 0; padding: 5px 38px 8px 0; color: var(--ink); background: transparent; font: 500 42px 'DM Mono', monospace; outline: none; }
+		.number-wrap { position: relative; }
+		input[type=number] { width: 100%; border: 0; border-bottom: 2px solid var(--ink); border-radius: 0; padding: 5px 38px 8px; color: var(--ink); background: transparent; font: 500 42px 'DM Mono', monospace; text-align: center; outline: none; }
 		input[type=number]:focus { border-color: var(--coral); }
 		.unit { position: absolute; right: 0; bottom: 14px; color: var(--muted); font: 12px 'DM Mono', monospace; }
 		button { border: 0; cursor: pointer; font: 600 14px 'Space Grotesk', sans-serif; }
-		.tempo-step { display: grid; place-items: center; width: 34px; height: 34px; flex: 0 0 34px; border: 1px solid var(--line); color: var(--ink); background: transparent; font: 400 25px/1 'DM Mono', monospace; transition: border-color .15s, color .15s, background .15s; }
-		.tempo-step:hover { border-color: var(--coral); color: var(--coral-dark); background: rgba(230,107,78,.08); }
-		.tempo-step:active { transform: translateY(1px); }
 		#tapButton { min-width: 112px; padding: 14px 17px; color: #fffdf8; background: var(--coral); transition: transform .15s, background .15s; }
 		#tapButton:hover { background: var(--coral-dark); }
 		#tapButton:active { transform: translateY(2px); }
@@ -98,13 +94,9 @@
 				<div class="tempo-row">
 					<div>
 						<label for="bpmInput">Tempo</label>
-						<div class="tempo-control">
-							<button class="tempo-step" id="decreaseTempo" type="button" aria-label="Decrease tempo" title="Decrease tempo">−</button>
-							<div class="number-wrap">
-								<input id="bpmInput" type="number" min="40" max="220" value="120" inputmode="numeric" aria-describedby="tempoRange">
-								<span class="unit">BPM</span>
-							</div>
-							<button class="tempo-step" id="increaseTempo" type="button" aria-label="Increase tempo" title="Increase tempo">+</button>
+						<div class="number-wrap">
+							<input id="bpmInput" type="number" min="40" max="220" value="120" inputmode="numeric" aria-describedby="tempoRange">
+							<span class="unit">BPM</span>
 						</div>
 					</div>
 					<button id="tapButton" type="button">Tap tempo</button>
@@ -166,8 +158,6 @@
 		const formulaText = document.querySelector('#formulaText');
 		const tapNote = document.querySelector('#tapNote');
 		const tapButton = document.querySelector('#tapButton');
-		const decreaseTempo = document.querySelector('#decreaseTempo');
-		const increaseTempo = document.querySelector('#increaseTempo');
 		let taps = [];
 
 		function clampTempo(value) {
@@ -196,8 +186,6 @@
 		tempoRange.addEventListener('input', () => updateTempo(tempoRange.value));
 		decaySelect.addEventListener('change', () => updateTempo(bpmInput.value));
 		predelaySelect.addEventListener('change', () => updateTempo(bpmInput.value));
-		decreaseTempo.addEventListener('click', () => updateTempo(Number(bpmInput.value) - 1));
-		increaseTempo.addEventListener('click', () => updateTempo(Number(bpmInput.value) + 1));
 
 		tapButton.addEventListener('click', () => {
 			const now = performance.now();
