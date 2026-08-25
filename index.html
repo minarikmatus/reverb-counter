@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#101820">
+	<title>Reverb Counter</title>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+		:root {
+			--ink: #15212b;
+			--muted: #667680;
+			--paper: #f5f1e9;
+			--panel: #fffdf8;
+			--line: #d7d9cf;
+			--coral: #e66b4e;
+			--coral-dark: #b94935;
+			--teal: #2b7772;
+			--yellow: #f2c85b;
+		}
+
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			min-height: 100vh;
+			color: var(--ink);
+			background: var(--paper);
+			font-family: 'Space Grotesk', sans-serif;
+			background-image: linear-gradient(135deg, rgba(43,119,114,.08) 0 1px, transparent 1px 28px), linear-gradient(45deg, rgba(230,107,78,.06) 0 1px, transparent 1px 28px);
+		}
+		main { width: min(1060px, calc(100% - 40px)); margin: 0 auto; padding: 54px 0 44px; }
+		header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 36px; }
+		.kicker { margin: 0 0 10px; color: var(--coral-dark); font: 500 12px 'DM Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase; }
+		h1 { margin: 0; font-size: clamp(42px, 8vw, 78px); line-height: .92; letter-spacing: -3px; max-width: 620px; }
+		.intro { max-width: 240px; margin: 0 0 4px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+		.workspace { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr); gap: 18px; align-items: stretch; }
+		.panel { border: 1px solid var(--line); background: rgba(255,253,248,.88); }
+		.controls { padding: 30px; }
+		.section-label { margin: 0 0 24px; font: 500 12px 'DM Mono', monospace; color: var(--teal); letter-spacing: 1px; text-transform: uppercase; }
+		.tempo-row { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px; }
+		label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
+		.number-wrap { position: relative; }
+		input[type=number] { width: 100%; border: 0; border-bottom: 2px solid var(--ink); border-radius: 0; padding: 5px 38px 8px 0; color: var(--ink); background: transparent; font: 500 42px 'DM Mono', monospace; outline: none; }
+		input[type=number]:focus { border-color: var(--coral); }
+		.unit { position: absolute; right: 0; bottom: 14px; color: var(--muted); font: 12px 'DM Mono', monospace; }
+		button { border: 0; cursor: pointer; font: 600 14px 'Space Grotesk', sans-serif; }
+		#tapButton { min-width: 112px; padding: 14px 17px; color: #fffdf8; background: var(--coral); transition: transform .15s, background .15s; }
+		#tapButton:hover { background: var(--coral-dark); }
+		#tapButton:active { transform: translateY(2px); }
+		.tap-note { min-height: 18px; margin: 9px 0 26px; color: var(--muted); font: 11px 'DM Mono', monospace; }
+		input[type=range] { width: 100%; accent-color: var(--coral); cursor: pointer; }
+		.range-labels { display: flex; justify-content: space-between; color: var(--muted); font: 11px 'DM Mono', monospace; }
+		.options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
+		select { width: 100%; appearance: none; border: 1px solid var(--line); border-radius: 0; padding: 12px 34px 12px 13px; color: var(--ink); background: #fffdf8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%2315212b' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 13px center; font: 500 13px 'Space Grotesk', sans-serif; }
+		select:focus { outline: 2px solid var(--yellow); outline-offset: 2px; }
+		.result { display: grid; grid-template-rows: 1fr auto; background: var(--ink); color: #fffdf8; }
+		.readout { padding: 30px; display: flex; flex-direction: column; justify-content: center; }
+		.result .section-label { color: var(--yellow); }
+		.readout-item { padding: 18px 0 20px; border-bottom: 1px solid rgba(255,255,255,.2); }
+		.readout-item:first-of-type { padding-top: 0; }
+		.readout-item:last-of-type { border: 0; }
+		.readout-name { display: block; color: #aebcc0; font-size: 13px; }
+		.value { display: inline-block; margin-top: 5px; font: 500 clamp(38px, 5vw, 58px) 'DM Mono', monospace; letter-spacing: -2px; }
+		.value small { margin-left: 5px; color: #aebcc0; font: 13px 'DM Mono', monospace; letter-spacing: 0; }
+		.formula { padding: 18px 30px; color: var(--ink); background: var(--yellow); font: 12px/1.55 'DM Mono', monospace; }
+		.formula strong { font-weight: 500; }
+		footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 24px; color: var(--muted); font: 11px/1.5 'DM Mono', monospace; }
+		@media (max-width: 720px) {
+			main { width: min(100% - 28px, 540px); padding-top: 34px; }
+			header { display: block; margin-bottom: 26px; }
+			.intro { max-width: 380px; margin-top: 18px; }
+			.workspace { grid-template-columns: 1fr; }
+			.controls, .readout { padding: 24px; }
+			.result { min-height: 390px; }
+			.formula { padding: 16px 24px; }
+			footer { display: block; }
+			footer span { display: block; margin-top: 5px; }
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<header>
+			<div>
+				<p class="kicker">Live sound / tempo-synced ambience</p>
+				<h1>Reverb<br>Counter</h1>
+			</div>
+			<p class="intro">Find a musical starting point for your reverb settings, then tune by ear in the room.</p>
+		</header>
+
+		<section class="workspace" aria-label="Reverb time calculator">
+			<div class="panel controls">
+				<p class="section-label">01 / Set the pulse</p>
+				<div class="tempo-row">
+					<div>
+						<label for="bpmInput">Tempo</label>
+						<div class="number-wrap">
+							<input id="bpmInput" type="number" min="40" max="300" value="120" inputmode="numeric" aria-describedby="tempoRange">
+							<span class="unit">BPM</span>
+						</div>
+					</div>
+					<button id="tapButton" type="button">Tap tempo</button>
+				</div>
+				<p class="tap-note" id="tapNote" aria-live="polite">Tap at least twice to find the tempo.</p>
+				<input id="tempoRange" type="range" min="40" max="300" value="120" aria-label="Tempo from 40 to 300 BPM">
+				<div class="range-labels"><span>40</span><span>300 BPM</span></div>
+
+				<div class="options">
+					<div>
+						<label for="decaySelect">Decay length</label>
+						<select id="decaySelect">
+							<option value="1">Quarter note</option>
+							<option value="2" selected>Half note</option>
+							<option value="4">One bar (4/4)</option>
+						</select>
+					</div>
+					<div>
+						<label for="predelaySelect">Pre-delay</label>
+						<select id="predelaySelect">
+							<option value="1">1/4 note</option>
+							<option value="0.5">1/8 note</option>
+							<option value="0.25" selected>1/16 note</option>
+							<option value="0.125">1/32 note</option>
+							<option value="0.0625">1/64 note</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div class="panel result">
+				<div class="readout">
+					<p class="section-label">02 / Your starting point</p>
+					<div class="readout-item">
+						<span class="readout-name">Reverb time</span>
+						<span class="value" id="reverbValue">0.875<small>s</small></span>
+					</div>
+					<div class="readout-item">
+						<span class="readout-name">Pre-delay</span>
+						<span class="value" id="predelayValue">0.125<small>s</small></span>
+					</div>
+				</div>
+				<div class="formula"><strong id="formulaText">At 120 BPM: 0.500 s per beat / decay 2 beats - pre-delay 1/16 beat</strong></div>
+			</div>
+		</section>
+		<footer>
+			<span>Tempo range: 40-300 BPM</span>
+			<span>Beat duration = 60 / BPM &middot; Reverb = decay - pre-delay</span>
+		</footer>
+	</main>
+
+	<script>
+		const bpmInput = document.querySelector('#bpmInput');
+		const tempoRange = document.querySelector('#tempoRange');
+		const decaySelect = document.querySelector('#decaySelect');
+		const predelaySelect = document.querySelector('#predelaySelect');
+		const reverbValue = document.querySelector('#reverbValue');
+		const predelayValue = document.querySelector('#predelayValue');
+		const formulaText = document.querySelector('#formulaText');
+		const tapNote = document.querySelector('#tapNote');
+		const tapButton = document.querySelector('#tapButton');
+		let taps = [];
+
+		function clampTempo(value) {
+			return Math.min(300, Math.max(40, Number(value) || 120));
+		}
+
+		function formatSeconds(seconds) {
+			return seconds.toFixed(3);
+		}
+
+		function updateTempo(value) {
+			const bpm = clampTempo(value);
+			bpmInput.value = bpm;
+			tempoRange.value = bpm;
+			const beat = 60 / bpm;
+			const decay = beat * Number(decaySelect.value);
+			const predelay = beat * Number(predelaySelect.value);
+			reverbValue.firstChild.nodeValue = formatSeconds(Math.max(0, decay - predelay));
+			predelayValue.firstChild.nodeValue = formatSeconds(predelay);
+			const decayName = decaySelect.options[decaySelect.selectedIndex].textContent.toLowerCase();
+			const predelayName = predelaySelect.options[predelaySelect.selectedIndex].textContent.toLowerCase();
+			formulaText.textContent = `At ${bpm} BPM: ${formatSeconds(beat)} s per beat / decay ${decayName} - pre-delay ${predelayName}`;
+		}
+
+		bpmInput.addEventListener('input', () => updateTempo(bpmInput.value));
+		tempoRange.addEventListener('input', () => updateTempo(tempoRange.value));
+		decaySelect.addEventListener('change', () => updateTempo(bpmInput.value));
+		predelaySelect.addEventListener('change', () => updateTempo(bpmInput.value));
+
+		tapButton.addEventListener('click', () => {
+			const now = performance.now();
+			taps = taps.filter(time => now - time < 2200);
+			taps.push(now);
+			if (taps.length >= 2) {
+				const intervals = taps.slice(1).map((time, index) => time - taps[index]);
+				const average = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+				updateTempo(Math.round(60000 / average));
+				tapNote.textContent = `${taps.length} taps / ${bpmInput.value} BPM`;
+			}
+			if (taps.length > 6) taps = taps.slice(-4);
+		});
+
+		updateTempo(bpmInput.value);
+	</script>
+</body>
+</html>
