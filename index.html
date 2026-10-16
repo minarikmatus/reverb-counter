@@ -42,6 +42,7 @@
 		.panel { border: 1px solid var(--line); background: rgba(255,253,248,.88); }
 		.controls { padding: 30px; }
 		.section-label { margin: 0 0 24px; font: 500 12px 'DM Mono', monospace; color: var(--teal); letter-spacing: 1px; text-transform: uppercase; }
+		.section-title-mobile { display: none; }
 		.tempo-row { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px; }
 		label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
 		.tempo-control { display: flex; align-items: end; gap: 10px; }
@@ -94,25 +95,27 @@
 			.tempo-row { display: block; }
 			.tempo-control { align-items: center; gap: 6px; }
 			.tempo-step { width: 48px; height: 48px; flex-basis: 48px; font-size: 26px; }
-			input[type=number] { padding: 4px 18px 6px; font-size: 32px; }
+			input[type=number] { padding: 4px 18px 6px; font-size: 40px; }
 			.unit { font-size: 10px; bottom: 10px; }
 			.controls { padding: 12px; display: flex; flex-direction: column; flex: 0 0 auto; }
 			.section-label { margin-bottom: 8px; font-size: 10px; }
-			.options { order: 0; margin-top: 2px; margin-bottom: 18px; }
+			.options { order: 0; margin-top: 8px; margin-bottom: 16px; }
 			.controls > .section-label { order: 1; }
 			.section-number { display: none; }
+			.section-title-desktop { display: none; }
+			.section-title-mobile { display: inline; }
 			.tempo-row { order: 2; }
 			.tap-note { order: 3; }
 			#tempoRange { order: 4; }
 			.range-labels { order: 5; }
 			.readout-item { display: flex; align-items: baseline; gap: 4px; padding: 0; border: 0; white-space: nowrap; }
-			.readout-name { font-size: clamp(9px, 2.8vw, 12px); }
-			.value { font-size: clamp(20px, 7vw, 38px); margin-top: 0; }
+			.readout-name { font-size: clamp(10px, 2.8vw, 12px); }
+			.value { font-size: 40px; margin-top: 0; }
 			label { font-size: 12px; margin-bottom: 6px; }
 			#tapButton { width: 100%; height: 48px; margin-top: 12px; padding: 0 12px; font-size: 13px; flex-shrink: 0; }
 			.options { grid-template-columns: 1fr 1fr; gap: 10px; }
-			select { padding: 10px 30px 10px 11px; font-size: 12px; }
-			.formula { padding: 10px 12px; font-size: 10px; flex-shrink: 0; }
+			select { min-height: 48px; padding: 10px 30px 10px 11px; font-size: 12px; }
+			.formula { padding: 8px 12px; color: var(--muted); background: #e8dfc9; font-size: 9px; flex-shrink: 0; }
 			.tap-note { margin: 6px 0 12px; font-size: 10px; }
 			input[type=range] { width: 100%; }
 			.range-labels { font-size: 9px; margin-top: 3px; }
@@ -132,7 +135,7 @@
 
 		<section class="workspace" aria-label="Reverb time calculator">
 			<div class="panel controls">
-				<p class="section-label"><span class="section-number">01 / </span>Set the pulse</p>
+				<p class="section-label"><span class="section-number">01 / </span><span class="section-title-desktop">Set the pulse</span><span class="section-title-mobile">Settings</span></p>
 				<div class="tempo-row">
 					<div>
 						<label for="bpmInput">Tempo</label>
@@ -176,7 +179,7 @@
 
 			<div class="panel result">
 				<div class="readout">
-					<p class="section-label"><span class="section-number">02 / </span>Your starting point</p>
+					<p class="section-label"><span class="section-number">02 / </span><span class="section-title-desktop">Your starting point</span><span class="section-title-mobile">Results</span></p>
 					<div class="readout-item">
 						<span class="readout-name">Reverb time</span>
 							<span class="value"><span id="reverbValue">1.94</span>s</span>
