@@ -216,6 +216,7 @@
 		const decreaseTempo = document.querySelector('#decreaseTempo');
 		const increaseTempo = document.querySelector('#increaseTempo');
 		const MISSED_BEATS_TO_RESET = 2.5;
+		const FIRST_TAP_TIMEOUT_BEATS = 2.25;
 		let taps = [];
 		let tapTimeout;
 		let hasStartedTapping = false;
@@ -277,7 +278,9 @@
 			tapTimeout = setTimeout(() => {
 				taps = [];
 				tapNote.classList.remove('is-active');
-			}, MISSED_BEATS_TO_RESET * 60000 / Number(bpmInput.value));
+			}, taps.length === 1
+				? FIRST_TAP_TIMEOUT_BEATS * 60000 / Number(tempoRange.min)
+				: MISSED_BEATS_TO_RESET * 60000 / Number(bpmInput.value));
 		});
 
 		updateTempo(bpmInput.value);
