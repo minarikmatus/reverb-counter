@@ -208,9 +208,9 @@
 		const tapButton = document.querySelector('#tapButton');
 		const decreaseTempo = document.querySelector('#decreaseTempo');
 		const increaseTempo = document.querySelector('#increaseTempo');
-		const TAP_WINDOW_MS = 2200;
+		const MISSED_BEATS_TO_RESET = 2.5;
 		let taps = [];
-		let tapHighlightTimeout;
+		let tapTimeout;
 
 		function clampTempo(value) {
 			return Math.min(220, Math.max(40, Number(value) || 120));
@@ -252,8 +252,7 @@
 
 		tapButton.addEventListener('click', () => {
 			const now = performance.now();
-			clearTimeout(tapHighlightTimeout);
-			taps = taps.filter(time => now - time < TAP_WINDOW_MS);
+			clearTimeout(tapTimeout);
 			taps.push(now);
 			if (taps.length >= 2) {
 				const intervals = taps.slice(1).map((time, index) => time - taps[index]);
@@ -261,13 +260,12 @@
 				updateTempo(Math.round(60000 / average));
 				tapNote.textContent = `${taps.length} taps / ${bpmInput.value} BPM`;
 				tapNote.classList.add('is-active');
-				tapHighlightTimeout = setTimeout(() => {
-					tapNote.classList.remove('is-active');
-				}, TAP_WINDOW_MS);
-			} else {
-				tapNote.classList.remove('is-active');
 			}
 			if (taps.length > 6) taps = taps.slice(-4);
+			tapTimeout = setTimeout(() => {
+				taps = [];
+				tapNote.classList.remove('is-active');
+			}, MISSED_BEATS_TO_RESET * 60000 / Number(bpmInput.value));
 		});
 
 		updateTempo(bpmInput.value);
