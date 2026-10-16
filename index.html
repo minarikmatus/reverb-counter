@@ -59,6 +59,11 @@
 		#tapButton:active { transform: translateY(2px); }
 		.tap-note { width: fit-content; max-width: 100%; min-height: 18px; margin: 9px 0 8px; padding: 3px 6px; color: var(--muted); background: transparent; font: 11px 'DM Mono', monospace; transition: background-color .25s ease, color .25s ease; }
 		.tap-note.is-active { color: #fffdf8; background: var(--coral); }
+		.tap-note.is-entering { animation: tap-note-enter .3s ease-out both; }
+		@keyframes tap-note-enter {
+			from { opacity: 0; transform: translateY(2px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
 		input[type=range] { width: 100%; accent-color: var(--coral); cursor: pointer; }
 		.range-labels { display: flex; justify-content: space-between; color: var(--muted); font: 11px 'DM Mono', monospace; }
 		.options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
@@ -211,6 +216,7 @@
 		const MISSED_BEATS_TO_RESET = 2.5;
 		let taps = [];
 		let tapTimeout;
+		let hasStartedTapping = false;
 
 		function clampTempo(value) {
 			return Math.min(220, Math.max(40, Number(value) || 120));
@@ -254,14 +260,18 @@
 			const now = performance.now();
 			clearTimeout(tapTimeout);
 			taps.push(now);
+			if (taps.length > 5) taps.shift();
+			tapNote.classList.add('is-active');
 			if (taps.length >= 2) {
 				const intervals = taps.slice(1).map((time, index) => time - taps[index]);
 				const average = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
 				updateTempo(Math.round(60000 / average));
-				tapNote.textContent = `${taps.length} taps / ${bpmInput.value} BPM`;
-				tapNote.classList.add('is-active');
 			}
-			if (taps.length > 6) taps = taps.slice(-4);
+			tapNote.textContent = `${taps.length} ${taps.length === 1 ? 'tap' : 'taps'} / ${bpmInput.value} BPM`;
+			if (!hasStartedTapping) {
+				tapNote.classList.add('is-entering');
+				hasStartedTapping = true;
+			}
 			tapTimeout = setTimeout(() => {
 				taps = [];
 				tapNote.classList.remove('is-active');
