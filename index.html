@@ -55,7 +55,9 @@
 		.tempo-step:hover { border-color: var(--coral); color: var(--coral-dark); background: rgba(230,107,78,.08); }
 		.tempo-step:active { transform: translateY(1px); }
 		#tapButton { min-width: 112px; height: 44px; padding: 0 17px; color: #fffdf8; background: var(--coral); transition: transform .15s, background .15s; }
-		#tapButton:hover { background: var(--coral-dark); }
+		@media (hover: hover) {
+			#tapButton:hover { background: var(--coral-dark); }
+		}
 		#tapButton:active { transform: translateY(2px); }
 		.tap-note { width: fit-content; max-width: 100%; min-height: 18px; margin: 9px 0 8px; padding: 3px 6px; color: var(--muted); background: transparent; font: 11px 'DM Mono', monospace; transition: background-color .25s ease, color .25s ease; }
 		.tap-note.is-active { color: #fffdf8; background: var(--coral); }
