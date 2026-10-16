@@ -42,7 +42,6 @@
 		.panel { border: 1px solid var(--line); background: rgba(255,253,248,.88); }
 		.controls { padding: 30px; }
 		.section-label { margin: 0 0 24px; font: 500 12px 'DM Mono', monospace; color: var(--teal); letter-spacing: 1px; text-transform: uppercase; }
-		.section-title-mobile { display: none; }
 		.tempo-row { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px; }
 		label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
 		.tempo-control { display: flex; align-items: end; gap: 10px; }
@@ -58,7 +57,8 @@
 		#tapButton { min-width: 112px; height: 44px; padding: 0 17px; color: #fffdf8; background: var(--coral); transition: transform .15s, background .15s; }
 		#tapButton:hover { background: var(--coral-dark); }
 		#tapButton:active { transform: translateY(2px); }
-		.tap-note { min-height: 18px; margin: 9px 0 26px; color: var(--muted); font: 11px 'DM Mono', monospace; }
+		.tap-note { width: fit-content; max-width: 100%; min-height: 18px; margin: 9px 0 8px; padding: 3px 6px; color: var(--muted); background: transparent; font: 11px 'DM Mono', monospace; transition: background-color .25s ease, color .25s ease; }
+		.tap-note.is-active { color: #fffdf8; background: var(--coral); }
 		input[type=range] { width: 100%; accent-color: var(--coral); cursor: pointer; }
 		.range-labels { display: flex; justify-content: space-between; color: var(--muted); font: 11px 'DM Mono', monospace; }
 		.options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
@@ -72,7 +72,7 @@
 		.readout-item:last-of-type { border: 0; }
 		.readout-name { display: block; color: #aebcc0; font-size: 13px; }
 		.value { display: inline-block; margin-top: 5px; font: 500 clamp(38px, 5vw, 58px) 'DM Mono', monospace; letter-spacing: -2px; }
-		.formula { padding: 18px 30px; color: var(--ink); background: var(--yellow); font: 12px/1.55 'DM Mono', monospace; }
+		.formula { padding: 8px 12px; color: var(--muted); background: #e8dfc9; font: 9px/1.55 'DM Mono', monospace; }
 		.formula strong { font-weight: 500; }
 		footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 24px; color: var(--muted); font: 11px/1.5 'DM Mono', monospace; }
 		@media (max-width: 900px) {
@@ -102,8 +102,6 @@
 			.options { order: 0; margin-top: 8px; margin-bottom: 16px; }
 			.controls > .section-label { order: 1; }
 			.section-number { display: none; }
-			.section-title-desktop { display: none; }
-			.section-title-mobile { display: inline; }
 			.tempo-row { order: 2; }
 			.tap-note { order: 3; }
 			#tempoRange { order: 4; }
@@ -115,8 +113,8 @@
 			#tapButton { width: 100%; height: 48px; margin-top: 12px; padding: 0 12px; font-size: 13px; flex-shrink: 0; }
 			.options { grid-template-columns: 1fr 1fr; gap: 10px; }
 			select { min-height: 48px; padding: 10px 30px 10px 11px; font-size: 12px; }
-			.formula { padding: 8px 12px; color: var(--muted); background: #e8dfc9; font-size: 9px; flex-shrink: 0; }
-			.tap-note { margin: 6px 0 12px; font-size: 10px; }
+			.formula { flex-shrink: 0; }
+			.tap-note { margin: 6px 0 6px; font-size: 10px; }
 			input[type=range] { width: 100%; }
 			.range-labels { font-size: 9px; margin-top: 3px; }
 			footer { display: none; }
@@ -135,7 +133,7 @@
 
 		<section class="workspace" aria-label="Reverb time calculator">
 			<div class="panel controls">
-				<p class="section-label"><span class="section-number">01 / </span><span class="section-title-desktop">Set the pulse</span><span class="section-title-mobile">Settings</span></p>
+				<p class="section-label"><span class="section-number">01 / </span>Settings</p>
 				<div class="tempo-row">
 					<div>
 						<label for="bpmInput">Tempo</label>
@@ -179,7 +177,7 @@
 
 			<div class="panel result">
 				<div class="readout">
-					<p class="section-label"><span class="section-number">02 / </span><span class="section-title-desktop">Your starting point</span><span class="section-title-mobile">Results</span></p>
+					<p class="section-label"><span class="section-number">02 / </span>Results</p>
 					<div class="readout-item">
 						<span class="readout-name">Reverb time</span>
 							<span class="value"><span id="reverbValue">1.94</span>s</span>
@@ -210,7 +208,9 @@
 		const tapButton = document.querySelector('#tapButton');
 		const decreaseTempo = document.querySelector('#decreaseTempo');
 		const increaseTempo = document.querySelector('#increaseTempo');
+		const TAP_WINDOW_MS = 2200;
 		let taps = [];
+		let tapHighlightTimeout;
 
 		function clampTempo(value) {
 			return Math.min(220, Math.max(40, Number(value) || 120));
@@ -252,13 +252,20 @@
 
 		tapButton.addEventListener('click', () => {
 			const now = performance.now();
-			taps = taps.filter(time => now - time < 2200);
+			clearTimeout(tapHighlightTimeout);
+			taps = taps.filter(time => now - time < TAP_WINDOW_MS);
 			taps.push(now);
 			if (taps.length >= 2) {
 				const intervals = taps.slice(1).map((time, index) => time - taps[index]);
 				const average = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
 				updateTempo(Math.round(60000 / average));
 				tapNote.textContent = `${taps.length} taps / ${bpmInput.value} BPM`;
+				tapNote.classList.add('is-active');
+				tapHighlightTimeout = setTimeout(() => {
+					tapNote.classList.remove('is-active');
+				}, TAP_WINDOW_MS);
+			} else {
+				tapNote.classList.remove('is-active');
 			}
 			if (taps.length > 6) taps = taps.slice(-4);
 		});
