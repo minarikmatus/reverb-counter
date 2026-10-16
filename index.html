@@ -79,15 +79,15 @@
 			#tapButton { width: 100%; margin-top: 16px; }
 		}
 		@media (max-width: 720px) {
-			body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-			main { width: 100%; max-width: 100%; padding: 12px 14px; margin: 0; flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+			body { min-height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+			main { width: 100%; max-width: 100%; padding: 12px 14px; margin: 0; flex: 1 0 auto; display: flex; flex-direction: column; gap: 8px; }
 			header { display: block; margin-bottom: 8px; flex-shrink: 0; }
 			h1 { font-size: clamp(24px, 5vw, 36px); margin: 0; line-height: 1.1; }
 			.intro { max-width: 100%; margin-top: 6px; font-size: 12px; }
 			.kicker { margin-bottom: 6px; font-size: 10px; }
-			.workspace { display: flex; flex-direction: column; gap: 0; flex: 1; min-height: 0; }
+			.workspace { display: flex; flex-direction: column; gap: 0; flex: 0 0 auto; }
 			.panel { border: 1px solid var(--line); background: rgba(255,253,248,.88); }
-			.result { order: -1; display: grid; grid-template-rows: 1fr auto; flex: 0 1 auto; min-height: 0; background: var(--ink); color: #fffdf8; }
+			.result { order: -1; display: grid; grid-template-rows: 1fr auto; flex: 0 0 auto; background: var(--ink); color: #fffdf8; }
 			.result .section-label { color: var(--yellow); }
 			.readout { padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
 			.readout .section-label { grid-column: 1 / -1; margin-bottom: 4px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.2); }
@@ -96,7 +96,7 @@
 			.tempo-step { width: 34px; height: 34px; flex-basis: 34px; font-size: 22px; }
 			input[type=number] { padding: 4px 18px 6px; font-size: 32px; }
 			.unit { font-size: 10px; bottom: 10px; }
-			.controls { padding: 12px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 0; }
+			.controls { padding: 12px; display: flex; flex-direction: column; flex: 0 0 auto; }
 			.section-label { margin-bottom: 8px; font-size: 10px; }
 			.readout-item { padding: 8px 0 10px; border: 0; }
 			.readout-name { font-size: 12px; }
@@ -118,7 +118,7 @@
 		<header>
 			<div>
 				<p class="kicker">Live sound / tempo-synced ambience</p>
-				<h1>Reverb<br>Counter</h1>
+				<h1>Reverb Counter</h1>
 			</div>
 			<p class="intro">Find a musical starting point for your reverb settings, then tune by ear in the room.</p>
 		</header>
